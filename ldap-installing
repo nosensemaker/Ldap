@@ -97,9 +97,30 @@ ou: Groups
   $ sudo systemctl restart slapd
 
 # installing phpldapadmin
-1.0
+1.0 install package
   $ sudo apt install phpldapadmin
 
-ubuntu 22.04
-sudo wget https://archive.ubuntu.com/ubuntu/pool/universe/p/phpldapadmin/phpldapadmin_1.2.6.7-2_all.deb
-sudo dpkg -i phpldapadmin_1.2.6.7-2_all.deb
+1.1 install repository phpldapadmin - ubuntu 22.04
+  $ sudo wget https://archive.ubuntu.com/ubuntu/pool/universe/p/phpldapadmin/phpldapadmin_1.2.6.7-2_all.de
+  $ sudo dpkg -i phpldapadmin_1.2.6.7-2_all.deb
+
+1.2 make the configuration of the file config.php in /etc/phpldapadmin/config.php
+  $ vim /etc/phpldapadmin/config.php
+
+1.3 change the lines like thoses:
+###
+$servers->setValue('server','name','ldap-itibr');
+
+$servers->setValue('server','base',array('dc=in,dc=iti,dc=br'));
+
+$servers->setValue('login','bind_id','cn=admin,dc=in,dc=iti,dc=br');
+
+$servers->setValue('login','bind_pass','$password');
+
+$servers->setValue('appearance','password_hash_custom','sha'); # not works
+
+$servers->setValue('auto_number','min',array('uidNumber'=>11000,'gidNumber'=>100));
+###
+
+1.4 restart service
+  $ sudo systemctl restart slapd
