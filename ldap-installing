@@ -1,0 +1,105 @@
+# how to install ldap
+
+1.0 updating the system
+  $ sudo apt update
+  $ sudo apt upgrade -
+
+1.1 install packages ldap
+  $ sudo apt install slapd ldap-utils
+
+# configuration
+
+1.0 remove directory with default configuration 
+  $ sudo rm -rf /etc/ldap/slapd.d/
+  $ sudo rm /var/lib/ldap/*
+
+1.1 change line "SLAPD_CONFIG=" in /etc/default/slapd to new rote of configuration
+  $ SLAPD_CONF="/etc/ldap/slapd.conf"
+1.2 change line "SLAPD_SERVICES=" 
+  $ SLAPD_CONF="/etc/ldap/slapd.conf"
+
+2.0 create configuration file slapd.conf
+
+##### Arquivo de configuração
+
+include         /etc/ldap/schema/core.schema
+include         /etc/ldap/schema/cosine.schema
+include         /etc/ldap/schema/nis.schema
+include         /etc/ldap/schema/inetorgperson.schema
+#include         /etc/ldap/schema/postfix.schema    # não vem na instalação padrão, pegar schema do servidor de produção
+#include         /etc/ldap/schema/sudoers.schema    # não vem na instalação padrão, pegar schema do servidor de produção
+#include         /etc/ldap/schema/ppolicy.schema
+
+
+pidfile         /var/run/slapd/slapd.pid
+argsfile        /var/run/slapd/slapd.args
+
+moduleload      back_mdb.la
+#moduleload      ppolicy.la
+moduleload      lastbind.la
+moduleload      syncprov.la                        #Módulo utilizado para fazer a replicação
+
+#logfile                /var/log/openldap/openldap.log
+#loglevel       -1
+
+
+database        mdb
+suffix  "dc=in,dc=iti,dc=br"
+rootdn  "cn=admin,dc=in,dc=iti,dc=br"
+rootpw  qwerty@123
+
+
+#overlay ppolicy
+#ppolicy_default "cn=ppolicyDefault,ou=policies,dc=in,dc=iti,dc=br"
+
+overlay lastbind
+lastbind-precision 480
+
+directory       /var/lib/ldap
+index   objectClass     eq
+index   uid             eq
+index   uidNumber,gidNumber eq
+index   cn,sn           eq
+#index   mail            eq
+index   memberUid       eq
+#index   sudoUser        eq
+
+### 
+
+2.1 restart slapd service
+  $ sudo systemctl restart slapd
+
+2.2 create file dominio.ldif
+
+###
+
+dn: dc=in,dc=iti,dc=br
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: iti
+
+dn: ou=People,dc=in,dc=iti,dc=br
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,dc=in,dc=iti,dc=br
+objectClass: organizationalUnit
+ou: Groups
+
+
+###
+
+2.3 use ldapadd to create domionio with OU people and Groups
+  $ ldapadd -x -D cn=admin,dc=in,dc=iti,dc=br -w $Password -H ldap://localhost -f dominio.ldif
+
+2.4 restart slapd service
+  $ sudo systemctl restart slapd
+
+# installing phpldapadmin
+1.0
+  $ sudo apt install phpldapadmin
+
+ubuntu 22.04
+sudo wget https://archive.ubuntu.com/ubuntu/pool/universe/p/phpldapadmin/phpldapadmin_1.2.6.7-2_all.deb
+sudo dpkg -i phpldapadmin_1.2.6.7-2_all.deb
