@@ -72,7 +72,3 @@ sudo systemctl restart slapd
 
 ```ldif
 ldappasswd -x -D "cn=Marcelo Batista,ou=People,dc=in,dc=iti,dc=br" -W -S "cn=Lethicia Miranda,ou=People,dc=in,dc=iti,dc=br
-
-``
-
-
