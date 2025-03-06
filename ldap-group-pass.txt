@@ -1,0 +1,18 @@
+dn: cn=PasswordManagers,ou=Groups,dc=in,dc=iti,dc=br
+objectClass: groupOfNames
+cn: PasswordManagers
+member: cn=Marcelo Batista,ou=People,dc=in,dc=iti,dc=br
+member: cn=Lethicia Miranda,ou=People,dc=in,dc=iti,dc=br
+
+parametros para o group poder trocar a senha
+
+access to attrs=userPassword
+    by self write
+    by group.exact="cn=PasswordManagers,ou=Groups,dc=in,dc=iti,dc=br" manage
+    by anonymous auth
+    by * none
+
+access to *
+    by self write
+    by users read
+    by * none
